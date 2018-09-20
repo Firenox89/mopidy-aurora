@@ -83,3 +83,41 @@ class Aurora(object):
     def on_toggle(self):
         """Switches the on/off state of the device"""
         self.on = not self.on
+
+    @property
+    def brightness(self):
+        """Returns the brightness of the device (0-100)"""
+        return self.__get("state/brightness/value")
+
+    @brightness.setter
+    def brightness(self, level):
+        """Sets the brightness to the given level (0-100)"""
+        data = {"brightness": {"value": level}}
+        self.__put("state", data)
+
+    @property
+    def saturation(self):
+        """Returns the saturation of the device (0-100)"""
+        return self.__get("state/sat/value")
+
+    @saturation.setter
+    def saturation(self, level):
+        """Sets the saturation to the given level (0-100)"""
+        data = {"sat": {"value": level}}
+        self.__put("state", data)
+
+    @property
+    def effect(self):
+        """Returns the active effect"""
+        return self.__get("effects/select")
+
+    @effect.setter
+    def effect(self, effect_name):
+        """Sets the active effect to the name specified"""
+        data = {"select": effect_name}
+        self.__put("effects", data)
+
+    @property
+    def effects_list(self):
+        """Returns a list of all effects stored on the device"""
+        return self.__get("effects/effectsList")

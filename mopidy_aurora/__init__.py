@@ -32,9 +32,9 @@ class Extension(ext.Extension):
     def setup(self, registry):
         print("alsalsla")
         logger.error("TWSTE")
-        from .backend import my_app_factory, setlogger
+        from .backend import app_factory, setlogger
         setlogger(logger)
         registry.add('http:app', {
             'name': self.ext_name,
-            'factory': my_app_factory,
+            'factory': app_factory,
         })
