@@ -103,5 +103,6 @@
     "presets": [
       "react-app"
     ]
-  }
+  },
+  "homepage": "/aurora"
 }

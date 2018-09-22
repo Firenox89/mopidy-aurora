@@ -53,12 +53,13 @@ class AuroraEffectListHandler(tornado.web.RequestHandler):
 
 def app_factory(config, core):
     database = "wtf"
+    auroraPath = os.path.join(os.path.dirname(__file__), 'static')
     return [
         (r'/tp/onoff', TPOnOffHandler, dict(database = database)),
         (r'/aurora/on', AuroraOnOffHandler),
         (r'/aurora/effect', AuroraEffectHandler),
         (r'/aurora/effect_list', AuroraEffectListHandler),
         (r'/aurora/brightness', AuroraBrightnessHandler),
-        (r'/(.*)', tornado.web.StaticFileHandler, {'path': '/home/firenox/git/mopidy-aurora/aurora-react/build/', "default_filename": "index.html"}),
+        (r'/(.*)', tornado.web.StaticFileHandler, {'path': auroraPath, "default_filename": "index.html"}),
     ]
 
