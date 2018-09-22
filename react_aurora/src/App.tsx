@@ -1,8 +1,9 @@
-import React, {Component} from 'react';
-import logo from './logo.svg';
+import * as React from 'react';
 import './App.css';
 
-class App extends Component {
+import logo from './logo.svg';
+
+class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -26,6 +27,7 @@ class App extends Component {
     }
 
     sendGetRequest(endpoint, callback) {
+        console.log(endpoint);
         let xhttp = new XMLHttpRequest();
         xhttp.open('GET', endpoint, true);
         xhttp.setRequestHeader('Content-type', 'application/json');
@@ -83,7 +85,7 @@ class App extends Component {
         const effectOptions = [];
         this.state.auroraEffectList.forEach(function (item, index) {
             effectOptions.push(
-                <option value={item}>{item}</option>
+                <option key={item} value={item}>{item}</option>
             );
         });
         return (

@@ -2,10 +2,6 @@ MANIFEST
 build/
 dist/
 
-/aurora-react/node_modules
-/aurora-react/coverage
-/aurora-react/build
-
 # misc
 .DS_Store
 .env.local

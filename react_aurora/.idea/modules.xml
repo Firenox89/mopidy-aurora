@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/aurora-react.iml" filepath="$PROJECT_DIR$/.idea/aurora-react.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/react_aurora.iml" filepath="$PROJECT_DIR$/.idea/react_aurora.iml" />
     </modules>
   </component>
 </project>
