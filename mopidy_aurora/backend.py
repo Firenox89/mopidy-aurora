@@ -24,7 +24,8 @@ class TPOnOffHandler(tornado.web.RequestHandler):
 
 class AuroraOnOffHandler(tornado.web.RequestHandler):
     def get(self):
-        self.write(aurora.on)
+        data = tornado.escape.json_encode(aurora.on)
+        self.write(data)
 
     def put(self):
         data = tornado.escape.json_decode(self.request.body)
