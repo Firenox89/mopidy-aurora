@@ -18,6 +18,9 @@ class TPOnOffHandler(tornado.web.RequestHandler):
     def initialize(self, database):
         self.database = database
 
+    def get(self):
+        self.write("false")
+
     def put(self):
         data = tornado.escape.json_decode(self.request.body)
         os.system("./tplink_smartplug.py -t 192.168.2.101 -c " + data["on"])
@@ -45,6 +48,27 @@ class AuroraBrightnessHandler(tornado.web.RequestHandler):
     def put(self):
         aurora.brightness = int(self.request.body)
 
+class AuroraSaturationHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.write(str(aurora.saturation))
+
+    def put(self):
+        aurora.saturation = int(self.request.body)
+
+class AuroraHueHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.write(str(aurora.hue))
+
+    def put(self):
+        aurora.hue = int(self.request.body)
+
+class AuroraTemperatureHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.write(str(aurora.color_temperature))
+
+    def put(self):
+        aurora.color_temperature = int(self.request.body)
+
 class AuroraEffectListHandler(tornado.web.RequestHandler):
     def get(self):
         data = tornado.escape.json_encode(aurora.effects_list)
@@ -55,11 +79,14 @@ def app_factory(config, core):
     database = "wtf"
     auroraPath = os.path.join(os.path.dirname(__file__), 'static')
     return [
-        (r'/tp/onoff', TPOnOffHandler, dict(database = database)),
+        (r'/tp/on', TPOnOffHandler, dict(database = database)),
         (r'/aurora/on', AuroraOnOffHandler),
         (r'/aurora/effect', AuroraEffectHandler),
         (r'/aurora/effect_list', AuroraEffectListHandler),
         (r'/aurora/brightness', AuroraBrightnessHandler),
+        (r'/aurora/saturation', AuroraSaturationHandler),
+        (r'/aurora/hue', AuroraHueHandler),
+        (r'/aurora/temperature', AuroraTemperatureHandler),
         (r'/(.*)', tornado.web.StaticFileHandler, {'path': auroraPath, "default_filename": "index.html"}),
     ]
 

@@ -107,6 +107,28 @@ class Aurora(object):
         self.__put("state", data)
 
     @property
+    def hue(self):
+        """Returns the hue of the device (0-360)"""
+        return self.__get("state/hue/value")
+
+    @hue.setter
+    def hue(self, level):
+        """Sets the hue to the given level (0-360)"""
+        data = {"hue": {"value": level}}
+        self.__put("state", data)
+
+    @property
+    def color_temperature(self):
+        """Returns the color temperature of the device (0-100)"""
+        return self.__get("state/ct/value")
+
+    @color_temperature.setter
+    def color_temperature(self, level):
+        """Sets the color temperature to the given level (0-100)"""
+        data = {"ct": {"value": level}}
+        self.__put("state", data)
+
+    @property
     def effect(self):
         """Returns the active effect"""
         return self.__get("effects/select")
