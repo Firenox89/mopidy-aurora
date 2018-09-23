@@ -1,0 +1,13 @@
+.footer {
+  display: flex;
+  width: 100%;
+  flex-direction: row;
+}
+
+.playerControl {
+  justify-content: flex-start;
+}
+
+.iconLicense {
+  align-self: flex-end;
+}
