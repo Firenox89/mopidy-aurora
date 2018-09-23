@@ -1,3 +1,6 @@
+.sliderContainer{
+  margin: 10px;
+}
 .slider {
   -webkit-appearance: none;
   width: 100%;

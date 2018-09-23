@@ -32,7 +32,7 @@ export default class Slider extends React.Component<ISliderProps, ISliderState> 
 
   public render() {
     return (
-        <div className="slidecontainer">
+        <div className="sliderContainer">
           <div>{this.props.labelName}</div>
           <input type="range" min={this.props.min} max={this.props.max} value={this.state.value}
                  className="slider"
