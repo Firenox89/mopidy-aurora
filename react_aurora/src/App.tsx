@@ -1,13 +1,22 @@
 import * as React from 'react';
+import Mopidy from './Mopidy';
 import './App.css';
-import OnOffSwitch from "./components/OnOffSwitch";
-import Slider from "./components/Slider";
 import EffectSelect from './components/EffectSelect';
 import Footer from './components/Footer';
+import OnOffSwitch from "./components/OnOffSwitch";
+import Slider from "./components/Slider";
 
-export default class App extends React.Component<{}, {}> {
+interface IAppState {
+  mopidy: Mopidy
+}
+
+export default class App extends React.Component<{}, IAppState> {
   constructor(props: any) {
     super(props);
+
+    this.state = {
+      mopidy: new Mopidy()
+    }
   }
 
   public render() {
@@ -22,7 +31,7 @@ export default class App extends React.Component<{}, {}> {
             <Slider endPoint='/aurora/aurora/hue' labelName='Hue' min='0' max='360'/>
             <Slider endPoint='/aurora/aurora/temperature' labelName='Temperature' min='1200' max='6500'/>
           </div>
-          <Footer/>
+          <Footer mopidy={this.state.mopidy}/>
         </div>
     );
   }
