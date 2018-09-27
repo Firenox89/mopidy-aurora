@@ -2,14 +2,25 @@
   display: flex;
   width: 100%;
   flex-direction: row;
+  background-color: #111111;
 }
 
 .playerControl {
+  padding: 5px;
+  margin-left: 5px;
   justify-content: flex-start;
 }
 
 .iconLicense {
   align-self: flex-end;
+}
+
+.cover {
+  padding: 5px;
+}
+
+.title {
+  padding: 5px;
 }
 
 .button {
@@ -19,4 +30,23 @@
 .title {
   min-width: 150px;
   max-width: 250px;
+}
+
+.volume {
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  align-self: center;
+}
+
+.position {
+  justify-content: center;
+  display: flex;
+  flex-direction: row;
+  align-self: center;
+}
+
+.positionContainer {
+  width: 250px;
+  margin-right: 3px;
 }

@@ -38,6 +38,8 @@ export default class MopidyClient {
       } else if (isRpcEvent(data)) {
         const type = data.event;
         delete data.event;
+        console.log(type);
+        console.log(snakeToCamel(type));
 
         this.emit('event:' + snakeToCamel(type), data);
       } else {

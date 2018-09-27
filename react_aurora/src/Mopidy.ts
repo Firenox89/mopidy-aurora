@@ -29,7 +29,11 @@ export default class Mopidy {
   }
 
   setVolume(volume: number) {
-    this.mopidy.call("core.mixer.set_volume", {volume: 15})
+    this.mopidy.call("core.mixer.set_volume", {volume})
+  }
+
+  onVolume(handler: Function) {
+    this.mopidy.on('event:volumeChanged', handler)
   }
 
   getState() {
@@ -40,11 +44,15 @@ export default class Mopidy {
     return this.mopidy.call("core.playback.get_state")
   }
 
-  getTimePosition() {
+  seek(time: number) {
+    this.mopidy.call("core.playback.seek", {"time_position": time})
+  }
+
+  getPosition() {
     return this.mopidy.call("core.playback.get_time_position")
   }
 
-  seek(time: number) {
-    this.mopidy.call("core.playback.seek", {"time_position": time})
+  onTrackPlaybackStarted(handler: Function) {
+    this.mopidy.on('event:trackPlaybackStarted', handler)
   }
 }
