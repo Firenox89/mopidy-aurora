@@ -141,41 +141,53 @@ export default class Footer extends React.Component<IFooterProps, IFooterState> 
   public render() {
     return (
         <div className="footer">
-          <div className="playerControl">
-            <img src={PreviousIcon} className='button' onClick={this.previous}/>
-            {this.state.isPlaying ?
-                <img src={PauseIcon} className='button' onClick={this.pause}/>
-                :
-                <img src={PlayIcon} className='button' onClick={this.play}/>
-            }
-            <img src={SkipIcon} className='button' onClick={this.skip}/>
-          </div>
-          <div className="volume">
-            <div className="sliderContainer">
-              <input type="range" min='0' max='100' value={this.state.volume}
-                     className="slider"
-                     id="myRange"
-                     onInput={this.volume}
-                     onChange={this.volume}/>
-            </div>
-          </div>
           <div className="cover">
-            <img src={this.state.cover} className='button'/>
+            <img src={this.state.cover} className='cover'/>
           </div>
-          <div className='title'>
-            <div>{this.state.title}</div>
-            <div>{this.state.artists}</div>
-          </div>
-          <div className="position">
-            <div>{this.postionToReadableString(this.state.position)}</div>
-            <div className="positionContainer">
-              <input type="range" min='0' max={this.state.length} value={this.state.position}
-                     className="slider"
-                     id="myRange"
-                     onInput={this.seek}
-                     onChange={this.seek}/>
+          <div className="controls">
+          <div className="bar">
+            <div className="playerControl">
+              <img src={PreviousIcon} className='button' onClick={this.previous}/>
+              {this.state.isPlaying ?
+                  <img src={PauseIcon} className='button' onClick={this.pause}/>
+                  :
+                  <img src={PlayIcon} className='button' onClick={this.play}/>
+              }
+              <img src={SkipIcon} className='button' onClick={this.skip}/>
             </div>
-            <div>{this.postionToReadableString(this.state.length)}</div>
+            <div className="volume">
+              <div className="sliderContainer">
+                <input type="range" min='0' max='100' value={this.state.volume}
+                       className="slider"
+                       id="myRange"
+                       onInput={this.volume}
+                       onChange={this.volume}/>
+              </div>
+              <div>
+                <button>Mute</button>
+              </div>
+              <div>
+                <button>Shuffle</button>
+              </div>
+            </div>
+          </div>
+          <div className="bar">
+            <div className='title'>
+              <div>{this.state.title}</div>
+              <div>{this.state.artists}</div>
+            </div>
+            <div className="position">
+              <div>{this.postionToReadableString(this.state.position)}</div>
+              <div className="positionContainer">
+                <input type="range" min='0' max={this.state.length} value={this.state.position}
+                       className="slider"
+                       id="myRange"
+                       onInput={this.seek}
+                       onChange={this.seek}/>
+              </div>
+              <div>{this.postionToReadableString(this.state.length)}</div>
+            </div>
+          </div>
           </div>
         </div>
     );

@@ -1,0 +1,13 @@
+.auroraControls {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-self: center;
+}
+
+.list {
+  margin: 30px;
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+}

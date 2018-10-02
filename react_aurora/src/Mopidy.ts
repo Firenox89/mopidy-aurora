@@ -55,4 +55,12 @@ export default class Mopidy {
   onTrackPlaybackStarted(handler: Function) {
     this.mopidy.on('event:trackPlaybackStarted', handler)
   }
+
+  loadAudioSources() {
+    return this.mopidy.call("core.library.browse", {"uri": null})
+  }
+
+  browse(uri: string) {
+    return this.mopidy.call("core.library.browse", {"uri": uri})
+  }
 }
