@@ -1,5 +1,7 @@
 import * as React from 'react';
-import Mopidy from '../Mopidy';
+import Mopidy from '../mopidy/Mopidy';
+import {ITlTrack, ITrack} from "../mopidy/MopidyInterfaces";
+import Utils from "../Utils";
 import TrackListItem from "./TrackListItem";
 import './Tracks.css';
 
@@ -9,8 +11,8 @@ interface ITracksProps {
 }
 
 interface ITracksState {
-  tracks: IBrowseResult[]
-  tlTracks?: ITlTrack[]
+  trackList: ITrack[]
+  trackListElements: JSX.Element[]
 }
 
 interface IBrowseResult {
@@ -19,57 +21,24 @@ interface IBrowseResult {
   uri: string
 }
 
-interface IAlbum {
-  images: string[]
-  name: string
-}
-
-interface IArtist {
-  name: string
-}
-
-interface ITrack {
-  album: IAlbum
-  artists: IArtist[]
-  comment: string
-  length: number
-  name: string
-  uri: string
-}
-
-export interface ITlTrack {
-  tlid: number
-  track: ITrack
-}
-
 export default class Tracks extends React.Component<ITracksProps, ITracksState> {
   constructor(props: any) {
     super(props);
 
     this.state = {
-      tracks: [],
+      trackList: [],
+      trackListElements: [],
     };
 
     this.loadAudioSources = this.loadAudioSources.bind(this);
+    this.playTrack = this.playTrack.bind(this);
     this.loadAudioSources(this.props.uri);
-
-    this.props.mopidy.getTlTracks().then((result: ITlTrack[]) =>{
-      this.setState({tlTracks: result});
-      console.log("TlTracks loadd");
-      console.log(result);
-    })
   }
 
   public render() {
-    const tracks: JSX.Element[] = [];
-    this.state.tracks.forEach((item: IBrowseResult, index: number) => {
-      tracks.push(
-          <TrackListItem key={item.uri} mopidy={this.props.mopidy} tlTracks={this.state.tlTracks} type={item.type} uri={item.uri} name={item.name}/>
-      );
-    });
     return (
         <div className="tracks">
-          {tracks}
+          {this.state.trackListElements}
         </div>
     );
   }
@@ -79,10 +48,80 @@ export default class Tracks extends React.Component<ITracksProps, ITracksState> 
   }
 
   private loadAudioSources(uri: string) {
-    this.props.mopidy.browse(uri).then((results: IBrowseResult[]) => {
-      this.setState({
-        tracks: results
+    this.props.mopidy.browse(uri).then((browseResult: IBrowseResult[]) => {
+      const trackListElements: JSX.Element[] = [];
+      const trackList: ITrack[] = [];
+      browseResult.filter((item: IBrowseResult) => item.type === "directory").forEach((item: IBrowseResult, index: number) => {
+        const artists = '';
+        const coverUri = '';
+        const length = '';
+        trackListElements.push(
+            <TrackListItem key={item.uri}
+                           mopidy={this.props.mopidy}
+                           type={item.type}
+                           title={item.name}
+                           uri={item.uri}
+                           artists={artists}
+                           length={length}
+                           coverUri={coverUri}
+                           playCallback={this.playTrack}/>
+        );
       });
+      let trackUris = browseResult.filter((item: IBrowseResult) => item.type === "track").map((item: IBrowseResult) => item.uri);
+      if (trackUris.length > 30) { // TODO paging
+        trackUris = trackUris.slice(0, 30);
+      }
+      if (trackUris.length > 0) {
+        this.props.mopidy.lookupTracks(trackUris).then((iTracks: ITrack[]) => {
+          trackUris.map((trackUri: string) => iTracks[trackUri][0]).forEach((track: ITrack) => {
+            if (track !== undefined) {
+              trackList.push(track);
+              let artists = '';
+              let coverUri = '';
+              if (track.album !== undefined && track.album.images !== undefined && track.album.images.length > 0) {
+                coverUri = track.album.images[0];
+              }
+              if (track.artists !== undefined) {
+                track.artists.forEach((artist: any) => artists = artists + ' ' + artist.name);
+              }
+              const length = Utils.timestampToReadableString(track.length);
+              trackListElements.push(
+                  <TrackListItem key={track.uri}
+                                 mopidy={this.props.mopidy}
+                                 type="track"
+                                 title={track.name}
+                                 uri={track.uri}
+                                 artists={artists}
+                                 length={length}
+                                 coverUri={coverUri}
+                                 playCallback={this.playTrack}/>
+              );
+            }
+          });
+          this.setState({
+            trackList,
+            trackListElements,
+          });
+        });
+      } else {
+        this.setState({
+          trackList,
+          trackListElements,
+        });
+      }
+    })
+  }
+
+  private playTrack(uri: string) {
+    const mopidy = this.props.mopidy;
+    mopidy.stop();
+    mopidy.clearTracklist();
+    mopidy.addToTracklist(this.state.trackList);
+    mopidy.getTlTracks().then((tlTracks: ITlTrack[]) => {
+      const foundTlTrack = tlTracks.find((tlTrack: ITlTrack) => tlTrack.track.uri === uri);
+      if (foundTlTrack !== undefined) {
+        mopidy.playTrack(foundTlTrack.tlid)
+      }
     })
   }
 }

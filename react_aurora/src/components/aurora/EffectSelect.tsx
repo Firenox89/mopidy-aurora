@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {FormEvent} from "react";
-import Utils from '../Utils';
+import Utils from '../../Utils';
 import './EffectSelect.css';
 
 interface IEffectSelectState {

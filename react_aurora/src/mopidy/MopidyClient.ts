@@ -1,12 +1,54 @@
 export default class MopidyClient {
-  socket: WebSocket;
-  pendingRequests = new Map<number, {resolve: (value?: any) => void, reject: (reason?: any) => void}>();
-  pendingCalls = new Map<number, JsonRpcRequest>();
-  currentId = 0;
-  handlers = new Map<string, Function[]>();
+  private socket: WebSocket;
+  private pendingRequests = new Map<number, {resolve: (value?: any) => void, reject: (reason?: any) => void}>();
+  private pendingCalls = new Map<number, JsonRpcRequest>();
+  private currentId = 0;
+  private handlers = new Map<string, Function[]>();
 
   constructor(url: string) {
     this.createSocket(url, 5000);
+  }
+
+  public call(method: string, params?: any) {
+    return new Promise((resolve, reject) => {
+      const id = this.getNextId();
+
+      this.pendingRequests.set(id, {resolve, reject});
+      this.sendRequest(params ? { jsonrpc: '2.0', method, id, params } : { jsonrpc: '2.0', method, id });
+    });
+  }
+
+  public on(event: string, handler: Function) {
+    const existing = this.handlers.get(event);
+
+    if (existing) {
+      existing.push(handler);
+    } else {
+      this.handlers.set(event, [handler]);
+    }
+  }
+
+  public off(event?: string, handler?: Function) {
+    if (!event) {
+      this.handlers.clear();
+      return;
+    }
+
+    if (this.handlers.has(event)) {
+      const handlers = this.handlers.get(event);
+
+      if (handlers) {
+        const newHandlers = handler ? handlers.filter(h => h !== handler) : [];
+        this.handlers.set(event, newHandlers);
+      }
+    }
+  }
+
+  public close() {
+    this.socket.close();
+
+    this.pendingRequests.forEach(f => f.reject('Socket has been closed'));
+    this.pendingRequests.clear();
   }
 
   private createSocket(url: string, reconnectInterval: number) {
@@ -57,15 +99,6 @@ export default class MopidyClient {
     return this.currentId++;
   }
 
-  public call(method: string, params?: any) {
-    return new Promise((resolve, reject) => {
-      const id = this.getNextId();
-
-      this.pendingRequests.set(id, {resolve, reject});
-      this.sendRequest(params ? { jsonrpc: '2.0', method, id, params } : { jsonrpc: '2.0', method, id });
-    });
-  }
-
   private sendRequest(request: JsonRpcRequest) {
     if (this.socket.readyState !== WebSocket.OPEN) {
       this.pendingCalls.set(request.id, request);
@@ -74,44 +107,12 @@ export default class MopidyClient {
     }
   }
 
-  emit(event: string, message?: any) {
-    for (var handler of this.handlers.get(event) || []) {
+  private emit(event: string, message?: any) {
+    for (const handler of this.handlers.get(event) || []) {
       handler(message);
     }
   }
 
-  public on(event: string, handler: Function) {
-    var existing = this.handlers.get(event);
-
-    if (existing) {
-      existing.push(handler);
-    } else {
-      this.handlers.set(event, [handler]);
-    }
-  }
-
-  public off(event?: string, handler?: Function) {
-    if (!event) {
-      this.handlers.clear();
-      return;
-    }
-
-    if (this.handlers.has(event)) {
-      var handlers = this.handlers.get(event);
-
-      if (handlers) {
-        var newHandlers = handler ? handlers.filter(h => h !== handler) : [];
-        this.handlers.set(event, newHandlers);
-      }
-    }
-  }
-
-  public close() {
-    this.socket.close();
-
-    this.pendingRequests.forEach(f => f.reject('Socket has been closed'));
-    this.pendingRequests.clear();
-  }
 }
 
 interface JsonRpcRequest {
@@ -141,7 +142,7 @@ function isRpcEvent(arg: any): arg is JsonRpcEvent {
   return arg.event !== undefined;
 }
 
-var snakeToCamel = (name: string) => name.replace(/(_[a-z])/g, match => match.toUpperCase().replace("_", ""));
+const snakeToCamel = (name: string) => name.replace(/(_[a-z])/g, match => match.toUpperCase().replace("_", ""));
 
 type ApiDescription = {[fullMethodName: string]: MethodDescription};
 

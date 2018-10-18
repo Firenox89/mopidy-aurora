@@ -1,7 +1,8 @@
 import * as React from 'react';
 import {FormEvent} from "react";
-import Mopidy from '../Mopidy';
-import Utils from "../Utils";
+import Mopidy from '../../mopidy/Mopidy';
+import {ITrack} from "../../mopidy/MopidyInterfaces";
+import Utils from "../../Utils";
 import './Footer.css';
 import PauseIcon from './pause.png';
 import PlayIcon from './play.png';
@@ -36,9 +37,9 @@ export default class Footer extends React.Component<IFooterProps, IFooterState> 
       volume: 50
     };
 
-    this.props.mopidy.getTrack().then((data: any) => {
-      if (data) {
-        this.setTrackData(data)
+    this.props.mopidy.getTrack().then((track: ITrack) => {
+      if (track) {
+        this.setTrackData(track)
       }
     });
 
@@ -60,8 +61,6 @@ export default class Footer extends React.Component<IFooterProps, IFooterState> 
 
     this.props.mopidy.onTrackPlaybackStarted((event: any) => {
       this.setTrackData(event.tl_track.track);
-      // @ts-ignore
-      console.log(event)
     });
 
     this.pollPosition = this.pollPosition.bind(this);
@@ -141,18 +140,20 @@ export default class Footer extends React.Component<IFooterProps, IFooterState> 
     }, 1000);
   }
 
-  private setTrackData(data: any) {
+  private setTrackData(track: ITrack) {
     let artists = '';
     let cover = '';
-    data.artists.forEach((artist: any) => artists = artists + ' ' + artist.name);
-    if (data.album.images[0]) {
-      cover = data.album.images[0]
+    if (track.album !== undefined && track.album.images !== undefined && track.album.images.length > 0) {
+      cover = track.album.images[0];
+    }
+    if (track.artists !== undefined) {
+      track.artists.forEach((artist: any) => artists = artists + ' ' + artist.name);
     }
     this.setState({
       artists,
       cover,
-      length: data.length,
-      title: data.name,
+      length: track.length,
+      title: track.name,
     })
   }
 

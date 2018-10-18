@@ -1,14 +1,15 @@
 import * as React from 'react';
 import {BrowserRouter as Router, Link, Route} from "react-router-dom";
 import './App.css';
-import AuroraControls from './components/AuroraControls';
-import Footer from './components/Footer';
+import AuroraControls from './components/aurora/AuroraControls';
+import Footer from './components/footer/Footer';
 import Tracks from './components/Tracks';
-import Mopidy from './Mopidy';
+import Mopidy from './mopidy/Mopidy';
+
+const mopidy = new Mopidy();
 
 interface IAppState {
   audioSources: IBrowseResult[]
-  mopidy: Mopidy
 }
 
 interface IBrowseResult {
@@ -19,9 +20,11 @@ interface IBrowseResult {
 
 // @ts-ignore
 const TrackList = ({match}) => {
+  console.log("match")
+  console.log(match.params.id)
   return (
       <div>
-        <Tracks mopidy={new Mopidy()} uri={match.params.id}/>
+        <Tracks mopidy={mopidy} uri={decodeURIComponent(match.params.id)}/>
       </div>
   );
 };
@@ -38,13 +41,12 @@ export default class App extends React.Component<{}, IAppState> {
 
     this.state = {
       audioSources: [],
-      mopidy: new Mopidy(),
     };
     this.loadAudioSources()
   }
 
   public loadAudioSources() {
-    this.state.mopidy.loadAudioSources().then((results: IBrowseResult[]) => {
+    mopidy.loadAudioSources().then((results: IBrowseResult[]) => {
       this.setState({
         audioSources: results
       });
@@ -56,7 +58,7 @@ export default class App extends React.Component<{}, IAppState> {
     this.state.audioSources.forEach((item: IBrowseResult, index: number) => {
       audioSources.push(
           <li key={item.uri}>
-            <Link to={"/" + item.uri}>{item.name}</Link>
+            <Link to={"/" + encodeURIComponent(item.uri)}>{item.name}</Link>
           </li>
       );
     });
@@ -79,7 +81,7 @@ export default class App extends React.Component<{}, IAppState> {
                 <Route path="/:id" component={TrackList}/>
               </div>
             </div>
-            <Footer mopidy={this.state.mopidy}/>
+            <Footer mopidy={mopidy}/>
           </div>
         </Router>
     );

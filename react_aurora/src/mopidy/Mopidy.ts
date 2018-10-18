@@ -1,4 +1,5 @@
 import MopidyClient from "./MopidyClient";
+import {ITrack} from "./MopidyInterfaces";
 
 export default class Mopidy {
 
@@ -10,6 +11,10 @@ export default class Mopidy {
 
   public pause() {
     this.mopidy.call("core.playback.pause", {})
+  }
+
+  public stop() {
+    this.mopidy.call("core.playback.stop", {})
   }
 
   public previous() {
@@ -32,7 +37,7 @@ export default class Mopidy {
     this.mopidy.call("core.mixer.set_volume", {volume})
   }
 
-  public onVolume(handler: Function) {
+  public onVolume(handler: (event: any) => void) {
     this.mopidy.on('event:volumeChanged', handler)
   }
 
@@ -52,7 +57,7 @@ export default class Mopidy {
     return this.mopidy.call("core.playback.get_time_position")
   }
 
-  public onTrackPlaybackStarted(handler: Function) {
+  public onTrackPlaybackStarted(handler: (event: any) => void) {
     this.mopidy.on('event:trackPlaybackStarted', handler)
   }
 
@@ -78,5 +83,17 @@ export default class Mopidy {
 
   public getTlTracks() {
     return this.mopidy.call("core.tracklist.get_tl_tracks")
+  }
+
+  public addToTracklist(tracks: ITrack[]) {
+    return this.mopidy.call("core.tracklist.add", {"tracks": tracks})
+  }
+
+  public clearTracklist() {
+    return this.mopidy.call("core.tracklist.clear")
+  }
+
+  public lookupTracks(trackUris: string[]) {
+    return this.mopidy.call("core.library.lookup", {"uris": trackUris})
   }
 }

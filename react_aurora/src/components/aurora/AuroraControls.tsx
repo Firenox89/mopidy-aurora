@@ -1,8 +1,8 @@
 import * as React from 'react';
+import Slider from "../Slider";
 import './AuroraControls.css';
 import EffectSelect from './EffectSelect';
 import OnOffSwitch from "./OnOffSwitch";
-import Slider from "./Slider";
 
 export default class AuroraControls extends React.Component<{}, {}> {
   public render() {
