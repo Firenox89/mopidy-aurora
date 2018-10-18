@@ -57,7 +57,7 @@ export default class MopidyClient {
     return this.currentId++;
   }
 
-  call(method: string, params?: any) {
+  public call(method: string, params?: any) {
     return new Promise((resolve, reject) => {
       const id = this.getNextId();
 
@@ -80,7 +80,7 @@ export default class MopidyClient {
     }
   }
 
-  on(event: string, handler: Function) {
+  public on(event: string, handler: Function) {
     var existing = this.handlers.get(event);
 
     if (existing) {
@@ -90,7 +90,7 @@ export default class MopidyClient {
     }
   }
 
-  off(event?: string, handler?: Function) {
+  public off(event?: string, handler?: Function) {
     if (!event) {
       this.handlers.clear();
       return;
@@ -106,7 +106,7 @@ export default class MopidyClient {
     }
   }
 
-  close() {
+  public close() {
     this.socket.close();
 
     this.pendingRequests.forEach(f => f.reject('Socket has been closed'));

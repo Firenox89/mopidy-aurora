@@ -12,10 +12,15 @@
   flex-direction: column;
   justify-content: space-between;
 }
-.content2 {
+.audioSources {
   height: 100%;
   display: flex;
   flex-direction: row;
+}
+
+.tracks {
+  background-color: lightgrey;
+  width: 100%;
 }
 
 a {

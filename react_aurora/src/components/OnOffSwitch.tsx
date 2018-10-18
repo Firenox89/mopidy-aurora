@@ -1,6 +1,6 @@
 import * as React from 'react';
-import './OnOffSwitch.css';
 import Utils from "../Utils";
+import './OnOffSwitch.css';
 
 interface IOnOffSwitchProps {
   endpoint: string,
@@ -22,12 +22,8 @@ export default class OnOffSwitch extends React.Component<IOnOffSwitchProps, IOnO
       const isTrue = (response === 'true');
       self.setState({on: isTrue})
     });
-  }
 
-  private handleValueChange() {
-    const on = !this.state.on;
-    this.setState({on});
-    Utils.sendPutRequest(this.props.endpoint, JSON.stringify({on}))
+    this.handleValueChange = this.handleValueChange.bind(this)
   }
 
   public render() {
@@ -37,7 +33,7 @@ export default class OnOffSwitch extends React.Component<IOnOffSwitchProps, IOnO
           <div className="onoffswitch">
             <input type="checkbox" name="onoffswitch" className="onoffswitch-checkbox"
                    id={this.props.labelName}
-                   checked={this.state.on} onChange={() => this.handleValueChange()}/>
+                   checked={this.state.on} onChange={this.handleValueChange}/>
             <label className="onoffswitch-label" htmlFor={this.props.labelName}>
               <span className="onoffswitch-inner"/>
               <span className="onoffswitch-switch"/>
@@ -45,5 +41,11 @@ export default class OnOffSwitch extends React.Component<IOnOffSwitchProps, IOnO
           </div>
         </div>
     );
+  }
+
+  private handleValueChange() {
+    const on = !this.state.on;
+    this.setState({on});
+    Utils.sendPutRequest(this.props.endpoint, JSON.stringify({on}))
   }
 }

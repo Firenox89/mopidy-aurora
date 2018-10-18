@@ -1,15 +1,16 @@
 import * as React from 'react';
 import Mopidy from '../Mopidy';
+import TrackListItem from "./TrackListItem";
 import './Tracks.css';
-import {Link} from "react-router-dom";
 
-interface IFooterProps {
+interface ITracksProps {
   mopidy: Mopidy
   uri: string
 }
 
-interface IFooterState {
+interface ITracksState {
   tracks: IBrowseResult[]
+  tlTracks?: ITlTrack[]
 }
 
 interface IBrowseResult {
@@ -18,36 +19,52 @@ interface IBrowseResult {
   uri: string
 }
 
-export default class Footer extends React.Component<IFooterProps, IFooterState> {
+interface IAlbum {
+  images: string[]
+  name: string
+}
+
+interface IArtist {
+  name: string
+}
+
+interface ITrack {
+  album: IAlbum
+  artists: IArtist[]
+  comment: string
+  length: number
+  name: string
+  uri: string
+}
+
+export interface ITlTrack {
+  tlid: number
+  track: ITrack
+}
+
+export default class Tracks extends React.Component<ITracksProps, ITracksState> {
   constructor(props: any) {
     super(props);
 
     this.state = {
-      tracks: []
+      tracks: [],
     };
 
     this.loadAudioSources = this.loadAudioSources.bind(this);
+    this.loadAudioSources(this.props.uri);
 
-    this.loadAudioSources(this.props.uri)
-  }
-
-  loadAudioSources(uri: string) {
-    this.props.mopidy.browse(uri).then((results: IBrowseResult[]) => {
-      this.setState({
-        tracks: results
-      });
+    this.props.mopidy.getTlTracks().then((result: ITlTrack[]) =>{
+      this.setState({tlTracks: result});
+      console.log("TlTracks loadd");
+      console.log(result);
     })
   }
-  componentWillReceiveProps(nextProps: IFooterProps){
-    this.loadAudioSources(nextProps.uri)
-  }
+
   public render() {
     const tracks: JSX.Element[] = [];
     this.state.tracks.forEach((item: IBrowseResult, index: number) => {
       tracks.push(
-          <div className="track">
-            <Link to={"/" + item.uri}>{item.name}</Link>
-          </div>
+          <TrackListItem key={item.uri} mopidy={this.props.mopidy} tlTracks={this.state.tlTracks} type={item.type} uri={item.uri} name={item.name}/>
       );
     });
     return (
@@ -55,5 +72,17 @@ export default class Footer extends React.Component<IFooterProps, IFooterState> 
           {tracks}
         </div>
     );
+  }
+
+  public componentWillReceiveProps(nextProps: ITracksProps) {
+    this.loadAudioSources(nextProps.uri)
+  }
+
+  private loadAudioSources(uri: string) {
+    this.props.mopidy.browse(uri).then((results: IBrowseResult[]) => {
+      this.setState({
+        tracks: results
+      });
+    })
   }
 }

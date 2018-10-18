@@ -1,11 +1,12 @@
 import * as React from 'react';
+import {FormEvent} from "react";
 import Mopidy from '../Mopidy';
+import Utils from "../Utils";
 import './Footer.css';
 import PauseIcon from './pause.png';
 import PlayIcon from './play.png';
 import PreviousIcon from './previous.png';
 import SkipIcon from './skip.png';
-import {FormEvent} from "react";
 
 interface IFooterProps {
   mopidy: Mopidy
@@ -22,6 +23,7 @@ interface IFooterState {
 }
 
 export default class Footer extends React.Component<IFooterProps, IFooterState> {
+
   constructor(props: any) {
     super(props);
 
@@ -58,6 +60,7 @@ export default class Footer extends React.Component<IFooterProps, IFooterState> 
 
     this.props.mopidy.onTrackPlaybackStarted((event: any) => {
       this.setTrackData(event.tl_track.track);
+      // @ts-ignore
       console.log(event)
     });
 
@@ -68,75 +71,10 @@ export default class Footer extends React.Component<IFooterProps, IFooterState> 
     this.skip = this.skip.bind(this);
     this.seek = this.seek.bind(this);
     this.volume = this.volume.bind(this);
-    this.postionToReadableString = this.postionToReadableString.bind(this);
     this.setTrackData = this.setTrackData.bind(this);
 
     this.pollPosition()
   }
-
-  pollPosition() {
-    setInterval(() => {
-      if (this.state.isPlaying) {
-        this.props.mopidy.getPosition().then((position: number) => {
-          this.setState({position})
-        });
-      }
-    }, 1000);
-
-  }
-
-  setTrackData(data: any) {
-    let artists = '';
-    let cover = '';
-    data.artists.forEach((artist: any) => artists = artists + ' ' + artist.name);
-    if (data.album.images[0]) {
-      cover = data.album.images[0]
-    }
-    this.setState({
-      artists,
-      cover,
-      length: data.length,
-      title: data.name,
-    })
-  }
-
-  play() {
-    this.props.mopidy.play();
-    this.setState({isPlaying: true});
-  }
-
-  pause() {
-    this.props.mopidy.pause();
-    this.setState({isPlaying: false});
-  }
-
-  previous() {
-    this.props.mopidy.previous();
-  }
-
-  skip() {
-    this.props.mopidy.skip();
-  }
-
-  seek(event: FormEvent) {
-    const newPosition = Number((event.target as HTMLInputElement).value);
-    this.props.mopidy.seek(newPosition);
-    this.props.mopidy.getPosition().then((position: number) => {
-      this.setState({position})
-    });
-  }
-
-  volume(event: FormEvent) {
-    const volume = Number((event.target as HTMLInputElement).value);
-    this.props.mopidy.setVolume(volume);
-  }
-
-  postionToReadableString(pos: number) {
-    const minutes = Math.round(pos / 60_000);
-    const seconds = Math.round((pos % 60_000) / 1000);
-    return minutes + ":" + ((seconds < 10) ? 0 : '') + seconds
-  }
-
 
   public render() {
     return (
@@ -177,7 +115,7 @@ export default class Footer extends React.Component<IFooterProps, IFooterState> 
               <div>{this.state.artists}</div>
             </div>
             <div className="position">
-              <div>{this.postionToReadableString(this.state.position)}</div>
+              <div>{Utils.timestampToReadableString(this.state.position)}</div>
               <div className="positionContainer">
                 <input type="range" min='0' max={this.state.length} value={this.state.position}
                        className="slider"
@@ -185,11 +123,67 @@ export default class Footer extends React.Component<IFooterProps, IFooterState> 
                        onInput={this.seek}
                        onChange={this.seek}/>
               </div>
-              <div>{this.postionToReadableString(this.state.length)}</div>
+              <div>{Utils.timestampToReadableString(this.state.length)}</div>
             </div>
           </div>
           </div>
         </div>
     );
+  }
+
+  private pollPosition() {
+    setInterval(() => {
+      if (this.state.isPlaying) {
+        this.props.mopidy.getPosition().then((position: number) => {
+          this.setState({position})
+        });
+      }
+    }, 1000);
+  }
+
+  private setTrackData(data: any) {
+    let artists = '';
+    let cover = '';
+    data.artists.forEach((artist: any) => artists = artists + ' ' + artist.name);
+    if (data.album.images[0]) {
+      cover = data.album.images[0]
+    }
+    this.setState({
+      artists,
+      cover,
+      length: data.length,
+      title: data.name,
+    })
+  }
+
+  private play() {
+    this.props.mopidy.play();
+    this.setState({isPlaying: true});
+  }
+
+  private pause() {
+    this.props.mopidy.pause();
+    this.setState({isPlaying: false});
+  }
+
+  private previous() {
+    this.props.mopidy.previous();
+  }
+
+  private skip() {
+    this.props.mopidy.skip();
+  }
+
+  private seek(event: FormEvent) {
+    const newPosition = Number((event.target as HTMLInputElement).value);
+    this.props.mopidy.seek(newPosition);
+    this.props.mopidy.getPosition().then((position: number) => {
+      this.setState({position})
+    });
+  }
+
+  private volume(event: FormEvent) {
+    const volume = Number((event.target as HTMLInputElement).value);
+    this.props.mopidy.setVolume(volume);
   }
 }

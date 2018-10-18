@@ -4,63 +4,79 @@ export default class Mopidy {
 
   private mopidy = new MopidyClient('ws://192.168.2.118/mopidy/ws/');
 
-  play() {
+  public play() {
     this.mopidy.call("core.playback.play", {})
   }
 
-  pause() {
+  public pause() {
     this.mopidy.call("core.playback.pause", {})
   }
 
-  previous() {
+  public previous() {
     this.mopidy.call("core.playback.previous", {})
   }
 
-  skip() {
+  public skip() {
     this.mopidy.call("core.playback.next", {})
   }
 
-  getTrack() {
+  public getTrack() {
     return this.mopidy.call("core.playback.get_current_track")
   }
 
-  getVolume() {
+  public getVolume() {
     return this.mopidy.call("core.mixer.get_volume")
   }
 
-  setVolume(volume: number) {
+  public setVolume(volume: number) {
     this.mopidy.call("core.mixer.set_volume", {volume})
   }
 
-  onVolume(handler: Function) {
+  public onVolume(handler: Function) {
     this.mopidy.on('event:volumeChanged', handler)
   }
 
-  getState() {
+  public getState() {
     return this.mopidy.call("core.playback.get_state")
   }
 
-  getRandom() {
+  public getRandom() {
     return this.mopidy.call("core.playback.get_state")
   }
 
-  seek(time: number) {
+  public seek(time: number) {
     this.mopidy.call("core.playback.seek", {"time_position": time})
   }
 
-  getPosition() {
+  public getPosition() {
     return this.mopidy.call("core.playback.get_time_position")
   }
 
-  onTrackPlaybackStarted(handler: Function) {
+  public onTrackPlaybackStarted(handler: Function) {
     this.mopidy.on('event:trackPlaybackStarted', handler)
   }
 
-  loadAudioSources() {
+  public loadAudioSources() {
     return this.mopidy.call("core.library.browse", {"uri": null})
   }
 
-  browse(uri: string) {
+  public browse(uri: string) {
     return this.mopidy.call("core.library.browse", {"uri": uri})
+  }
+
+  public playTrack(id: number) {
+    this.mopidy.call("core.playback.play", {"tlid": id})
+  }
+
+  public lookup(uri: string) {
+    return this.mopidy.call("core.library.lookup", {"uri": uri})
+  }
+
+  public getPlaylists() {
+    return this.mopidy.call("core.playlists.get_playlists")
+  }
+
+  public getTlTracks() {
+    return this.mopidy.call("core.tracklist.get_tl_tracks")
   }
 }

@@ -1,14 +1,14 @@
 import * as React from 'react';
-import Mopidy from './Mopidy';
+import {BrowserRouter as Router, Link, Route} from "react-router-dom";
 import './App.css';
-import Footer from './components/Footer';
 import AuroraControls from './components/AuroraControls';
+import Footer from './components/Footer';
 import Tracks from './components/Tracks';
-import {BrowserRouter as Router, Route, Link} from "react-router-dom";
+import Mopidy from './Mopidy';
 
 interface IAppState {
-  mopidy: Mopidy
   audioSources: IBrowseResult[]
+  mopidy: Mopidy
 }
 
 interface IBrowseResult {
@@ -37,13 +37,13 @@ export default class App extends React.Component<{}, IAppState> {
     super(props);
 
     this.state = {
+      audioSources: [],
       mopidy: new Mopidy(),
-      audioSources: []
     };
     this.loadAudioSources()
   }
 
-  loadAudioSources() {
+  public loadAudioSources() {
     this.state.mopidy.loadAudioSources().then((results: IBrowseResult[]) => {
       this.setState({
         audioSources: results
@@ -68,14 +68,16 @@ export default class App extends React.Component<{}, IAppState> {
     return (
         <Router>
           <div className="App">
-            <div className="content2">
+            <div className="audioSources">
               <div>
                 <ul>
                   {audioSources}
                 </ul>
               </div>
-              <Route exact path="/" component={Aurora}/>
-              <Route path="/:id" component={TrackList}/>
+              <div className="tracks">
+                <Route exact={true} path="/" component={Aurora}/>
+                <Route path="/:id" component={TrackList}/>
+              </div>
             </div>
             <Footer mopidy={this.state.mopidy}/>
           </div>

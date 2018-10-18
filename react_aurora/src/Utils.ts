@@ -29,4 +29,11 @@ export default class Utils {
     };
     xhttp.send(body);
   }
+
+  public static timestampToReadableString(pos: number) {
+    const minutes = Math.round(pos / 60_000);
+    const seconds = Math.round((pos % 60_000) / 1000);
+    return minutes + ":" + ((seconds < 10) ? 0 : '') + seconds
+  }
+
 }

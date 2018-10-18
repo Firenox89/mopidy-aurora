@@ -3,6 +3,8 @@
   flex-direction: column;
   justify-content: space-between;
   align-self: center;
+  background-color: #222222;
+  border-radius: 20px;
 }
 
 .list {

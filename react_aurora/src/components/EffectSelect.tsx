@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {FormEvent} from "react";
 import Utils from '../Utils';
 import './EffectSelect.css';
 
@@ -21,13 +22,8 @@ export default class EffectSelect extends React.Component<{}, IEffectSelectState
     Utils.sendGetRequest('/aurora/aurora/effect', (response: string) => {
       self.setState({effect: response})
     });
-  }
 
-  private handleAuroraSelect(selected: string) {
-    this.setState({
-      effect: selected,
-    });
-    Utils.sendPutRequest('/aurora/aurora/effect', selected)
+    this.handleAuroraSelect = this.handleAuroraSelect.bind(this)
   }
 
   public render() {
@@ -40,12 +36,19 @@ export default class EffectSelect extends React.Component<{}, IEffectSelectState
     return (
         <div className="effectSelectContainer">
           <div>Effect</div>
-          <select id="title" name="title" value={this.state.effect} onChange={event => {
-            this.handleAuroraSelect(event.target.value)
-          }}>
+          <select id="title" name="title" value={this.state.effect} onChange={this.handleAuroraSelect}>
             {effectOptions}
           </select>
         </div>
     );
   }
+
+  private handleAuroraSelect(event: FormEvent) {
+    const selected = (event.target as HTMLInputElement).value;
+    this.setState({
+      effect: selected,
+    });
+    Utils.sendPutRequest('/aurora/aurora/effect', selected)
+  }
+
 }

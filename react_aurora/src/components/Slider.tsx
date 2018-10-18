@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {FormEvent} from "react";
 import Utils from '../Utils';
 import './Slider.css';
 
@@ -19,15 +20,12 @@ export default class Slider extends React.Component<ISliderProps, ISliderState> 
     const self = this;
     this.state = {
       value: '50'
-    }
+    };
     Utils.sendGetRequest(props.endPoint, (response: string) => {
       self.setState({value: response})
     });
-  }
 
-  private handleValueChange(value: string) {
-    this.setState({value});
-    Utils.sendPutRequest(this.props.endPoint, value)
+    this.handleValueChange = this.handleValueChange.bind(this)
   }
 
   public render() {
@@ -37,13 +35,15 @@ export default class Slider extends React.Component<ISliderProps, ISliderState> 
           <input type="range" min={this.props.min} max={this.props.max} value={this.state.value}
                  className="slider"
                  id="myRange"
-                 onInput={event => {
-                   this.handleValueChange((event.target as HTMLInputElement).value)
-                 }}
-                 onChange={event => {
-                   this.handleValueChange(event.target.value)
-                 }}/>
+                 onInput={this.handleValueChange}
+                 onChange={this.handleValueChange}/>
         </div>
     );
+  }
+
+  private handleValueChange(event: FormEvent) {
+    const value = (event.target as HTMLInputElement).value;
+    this.setState({value});
+    Utils.sendPutRequest(this.props.endPoint, value)
   }
 }
