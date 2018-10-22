@@ -3,14 +3,16 @@ import Slider from "../Slider";
 import './AuroraControls.css';
 import EffectSelect from './EffectSelect';
 import OnOffSwitch from "./OnOffSwitch";
+import APIButton from "./APIButton";
 
 export default class AuroraControls extends React.Component<{}, {}> {
   public render() {
     return (
         <div className="auroraControls">
           <div className="list">
-            <OnOffSwitch endpoint='/aurora/tp/on' labelName={"Power"}/>
-            <OnOffSwitch endpoint='/aurora/aurora/on' labelName={"Aurora"}/>
+            <APIButton endpoint='/aurora/aurora/reboot' labelName="Reboot"/>
+            <OnOffSwitch endpoint='/aurora/aurora/power' labelName="Power"/>
+            <OnOffSwitch endpoint='/aurora/aurora/on' labelName="Aurora"/>
             <EffectSelect/>
             <Slider endPoint='/aurora/aurora/brightness' labelName='Brightness' min='0' max='100'/>
             <Slider endPoint='/aurora/aurora/saturation' labelName='Saturation' min='0' max='100'/>

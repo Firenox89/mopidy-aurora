@@ -20,84 +20,84 @@
 #
 
 import socket
-import argparse
+import tornado.web
 from struct import pack
 
 version = 0.2
 
-# Check if hostname is valid
-def validHostname(hostname):
-	try:
-		socket.gethostbyname(hostname)
-	except socket.error:
-		parser.error("Invalid hostname.")
-	return hostname
-
 # Predefined Smart Plug Commands
 # For a full list of commands, consult tplink_commands.txt
 commands = {'info'     : '{"system":{"get_sysinfo":{}}}',
-			'on'       : '{"system":{"set_relay_state":{"state":1}}}',
-			'off'      : '{"system":{"set_relay_state":{"state":0}}}',
-			'cloudinfo': '{"cnCloud":{"get_info":{}}}',
-			'wlanscan' : '{"netif":{"get_scaninfo":{"refresh":0}}}',
-			'time'     : '{"time":{"get_time":{}}}',
-			'schedule' : '{"schedule":{"get_rules":{}}}',
-			'countdown': '{"count_down":{"get_rules":{}}}',
-			'antitheft': '{"anti_theft":{"get_rules":{}}}',
-			'reboot'   : '{"system":{"reboot":{"delay":1}}}',
-			'reset'    : '{"system":{"reset":{"delay":1}}}',
-			'energy'   : '{"emeter":{"get_realtime":{}}}'
+'on'       : '{"system":{"set_relay_state":{"state":1}}}',
+'off'      : '{"system":{"set_relay_state":{"state":0}}}',
+'cloudinfo': '{"cnCloud":{"get_info":{}}}',
+'wlanscan' : '{"netif":{"get_scaninfo":{"refresh":0}}}',
+'time'     : '{"time":{"get_time":{}}}',
+'schedule' : '{"schedule":{"get_rules":{}}}',
+'countdown': '{"count_down":{"get_rules":{}}}',
+'antitheft': '{"anti_theft":{"get_rules":{}}}',
+'reboot'   : '{"system":{"reboot":{"delay":1}}}',
+'reset'    : '{"system":{"reset":{"delay":1}}}',
+'energy'   : '{"emeter":{"get_realtime":{}}}'
 }
 
-# Encryption and Decryption of TP-Link Smart Home Protocol
-# XOR Autokey Cipher with starting key = 171
-def encrypt(string):
-	key = 171
-	result = pack('>I', len(string))
-	for i in string:
-		a = key ^ ord(i)
-		key = a
-		result += chr(a)
-	return result
+class TPLinkSmartPlug(object):
+    def __init__(self, ip_address):
+        # Set target IP, port and command to send
+        self.ip = ip_address
+        self.port = 9999
 
-def decrypt(string):
-	key = 171
-	result = ""
-	for i in string:
-		a = key ^ ord(i)
-		key = ord(i)
-		result += chr(a)
-	return result
+    # Encryption and Decryption of TP-Link Smart Home Protocol
+    # XOR Autokey Cipher with starting key = 171
+    def __encrypt(self, string):
+        key = 171
+        result = pack('>I', len(string))
+        for i in string:
+            a = key ^ ord(i)
+            key = a
+            result += chr(a)
+        return result
 
-# Parse commandline arguments
-parser = argparse.ArgumentParser(description="TP-Link Wi-Fi Smart Plug Client v" + str(version))
-parser.add_argument("-t", "--target", metavar="<hostname>", required=True, help="Target hostname or IP address", type=validHostname)
-group = parser.add_mutually_exclusive_group(required=True)
-group.add_argument("-c", "--command", metavar="<command>", help="Preset command to send. Choices are: "+", ".join(commands), choices=commands)
-group.add_argument("-j", "--json", metavar="<JSON string>", help="Full JSON string of command to send")
-args = parser.parse_args()
+    def __decrypt(self, string):
+        key = 171
+        result = ""
+        for i in string:
+            a = key ^ ord(i)
+            key = ord(i)
+            result += chr(a)
+        return result
 
+    def __send(self, cmd):
+        # Send command and receive reply
+        try:
+            sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock_tcp.connect((self.ip, self.port))
+            sock_tcp.send(self.__encrypt(cmd))
+            data = sock_tcp.recv(2048)
+            sock_tcp.close()
 
-# Set target IP, port and command to send
-ip = args.target
-port = 9999
-if args.command is None:
-	cmd = args.json
-else:
-	cmd = commands[args.command]
+            response = self.__decrypt(data[4:])
+            # print "Sent:     ", cmd
+            # print "Received: ", response
+            return response
+        except socket.error:
+            quit("Cound not connect to host " + ip + ":" + str(port))
 
+    @property
+    def info(self):
+        return self.__send(commands['info'])
 
+    @property
+    def power(self):
+        response = self.__send(commands['info'])
+        data = tornado.escape.json_decode(response)
+        state = data["system"]["get_sysinfo"]["relay_state"]
+        return state == 1
 
-# Send command and receive reply
-try:
-	sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-	sock_tcp.connect((ip, port))
-	sock_tcp.send(encrypt(cmd))
-	data = sock_tcp.recv(2048)
-	sock_tcp.close()
-
-	print "Sent:     ", cmd
-	print "Received: ", decrypt(data[4:])
-except socket.error:
-	quit("Cound not connect to host " + ip + ":" + str(port))
+    @power.setter
+    def power(self, on):
+        if on:
+            self.__send(commands['on'])
+        else:
+            self.__send(commands['off'])
 
