@@ -23,8 +23,6 @@ export default class APIButton extends React.Component<IAPIButtonProps, {}> {
                     onClick={this.callAPI}>
               {this.props.labelName}
             </button>
-            <label className="onoffswitch-label" htmlFor={this.props.labelName}>
-            </label>
           </div>
         </div>
     );

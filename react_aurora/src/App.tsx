@@ -4,7 +4,7 @@ import './App.css';
 import AuroraControls from './components/aurora/AuroraControls';
 import Footer from './components/footer/Footer';
 import Tracks from './components/Tracks';
-import Mopidy from './mopidy/Mopidy';
+import Mopidy from './mopidy/MopidyHelper';
 
 const mopidy = new Mopidy();
 
@@ -20,12 +20,8 @@ interface IBrowseResult {
 
 // @ts-ignore
 const TrackList = ({match}) => {
-  console.log("match")
-  console.log(match.params.id)
   return (
-      <div>
         <Tracks mopidy={mopidy} uri={decodeURIComponent(match.params.id)}/>
-      </div>
   );
 };
 
@@ -46,37 +42,45 @@ export default class App extends React.Component<{}, IAppState> {
   }
 
   public loadAudioSources() {
-    mopidy.loadAudioSources().then((results: IBrowseResult[]) => {
-      this.setState({
-        audioSources: results
-      });
-    })
+    if (mopidy.isOnline) {
+      mopidy.loadAudioSources().then((results: IBrowseResult[]) => {
+        this.setState({
+          audioSources: results
+        });
+      })
+    } else {
+      mopidy.onOnline(() => {
+        mopidy.loadAudioSources().then((results: IBrowseResult[]) => {
+          this.setState({
+            audioSources: results
+          });
+        })
+      })
+    }
   }
 
   public render() {
     const audioSources: JSX.Element[] = [];
     this.state.audioSources.forEach((item: IBrowseResult, index: number) => {
       audioSources.push(
-          <li key={item.uri}>
+          <div key={item.uri} className="menuEntry">
             <Link to={"/" + encodeURIComponent(item.uri)}>{item.name}</Link>
-          </li>
+          </div>
       );
     });
     audioSources.push(
-        <li key="aurora">
+        <div key="aurora" className="menuEntry">
           <Link to={"/"}>Aurora</Link>
-        </li>
+        </div>
     );
     return (
         <Router>
           <div className="App">
-            <div className="audioSources">
-              <div>
-                <ul>
+            <div className="mainContent">
+              <div className="sidemenu">
                   {audioSources}
-                </ul>
               </div>
-              <div className="tracks">
+              <div className="contentContainer">
                 <Route exact={true} path="/" component={Aurora}/>
                 <Route path="/:id" component={TrackList}/>
               </div>

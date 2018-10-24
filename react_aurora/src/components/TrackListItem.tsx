@@ -1,6 +1,6 @@
 import * as React from 'react';
 import {Link} from "react-router-dom";
-import Mopidy from '../mopidy/Mopidy';
+import Mopidy from '../mopidy/MopidyHelper';
 import './TrackListItem.css';
 
 interface ITrackListItemProps {
@@ -36,9 +36,9 @@ export default class TrackListItem extends React.Component<ITrackListItemProps, 
                   <img src={this.props.coverUri} className='cover'/>
                 </div>
                 <div className="trackInfo">
-                  <div className="trackInfoText">{this.props.artists}</div>
-                  <div className="trackInfoText">{this.props.title}</div>
-                  <div className="trackInfoText">{this.props.length}</div>
+                  <div className="trackArtist">{this.props.artists}</div>
+                  <div className="trackTitle">{this.props.title}</div>
+                  <div className="trackLength">{this.props.length}</div>
                 </div>
               </div>
               :

@@ -36,7 +36,7 @@ export default class EffectSelect extends React.Component<{}, IEffectSelectState
     return (
         <div className="effectSelectContainer">
           <div>Effect</div>
-          <select id="title" name="title" value={this.state.effect} onChange={this.handleAuroraSelect}>
+          <select id="title" name="title" className="effectSelect" value={this.state.effect} onChange={this.handleAuroraSelect}>
             {effectOptions}
           </select>
         </div>

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import Slider from "../Slider";
+import APIButton from "./APIButton";
 import './AuroraControls.css';
 import EffectSelect from './EffectSelect';
 import OnOffSwitch from "./OnOffSwitch";
-import APIButton from "./APIButton";
 
 export default class AuroraControls extends React.Component<{}, {}> {
   public render() {

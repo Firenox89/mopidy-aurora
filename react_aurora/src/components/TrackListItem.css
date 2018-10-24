@@ -1,13 +1,8 @@
 .track {
   padding: 5px;
-  color: black;
-  font-size: 20px;
-  border: solid black 1px;
 }
 
 .trackInfoContainer {
-  color: black;
-  font-size: 20px;
   display: flex;
   flex-direction: row;
 }
@@ -25,11 +20,25 @@
   align-self: center;
 }
 
-.trackInfoText {
+.trackArtist {
   overflow: hidden;
   white-space: nowrap; /* Don't forget this one */
   text-overflow: ellipsis;
-  max-width: 500px;
+  width: 150px;
+  align-self: flex-start;
+}
+
+.trackTitle {
+  overflow: hidden;
+  white-space: nowrap; /* Don't forget this one */
+  text-overflow: ellipsis;
+}
+
+.trackLength {
+  overflow: hidden;
+  white-space: nowrap; /* Don't forget this one */
+  text-overflow: ellipsis;
+  align-self: flex-end;
 }
 
 .directory {
