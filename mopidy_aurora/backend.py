@@ -8,8 +8,8 @@ from mopidy import ext
 from .nanoleaf import Aurora
 from .tplink_smartplug import TPLinkSmartPlug
 
-aurora = Aurora("192.168.2.100", "1tHOYr0jYUm2dIlELluQXGAJV97Svqcw")
-tplink = TPLinkSmartPlug('192.168.2.101')
+aurora = Aurora("192.168.2.101", "1tHOYr0jYUm2dIlELluQXGAJV97Svqcw")
+tplink = TPLinkSmartPlug('192.168.2.100')
 glogger = ""
 def setlogger(logger):
     global glogger

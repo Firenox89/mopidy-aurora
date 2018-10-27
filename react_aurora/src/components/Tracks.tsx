@@ -1,4 +1,5 @@
 import * as React from 'react';
+// import InfiniteScroll from 'react-infinite-scroller';
 import ReactLoading from "react-loading";
 import Mopidy from '../mopidy/MopidyHelper';
 import {ITlTrack, ITrack} from "../mopidy/MopidyInterfaces";
@@ -48,7 +49,8 @@ export default class Tracks extends React.Component<ITracksProps, ITracksState> 
 
     this.renderTrackInfo = this.renderTrackInfo.bind(this);
     this.playTrack = this.playTrack.bind(this);
-
+    this.hasNewPages = this.hasNewPages.bind(this);
+    this.loadNextPage = this.loadNextPage.bind(this);
 
     if (this.props.mopidy.isOnline) {
       this.loadAudioSources(this.props.uri);
@@ -62,7 +64,7 @@ export default class Tracks extends React.Component<ITracksProps, ITracksState> 
   public render() {
     let pageContent: JSX.Element = <div/>;
     if (this.state.isLoading) {
-      pageContent = <div className="loadingContainer"><ReactLoading type="spin" color="#000"/></div>
+      pageContent = <div className="loadingContainer"><ReactLoading type="spin" color="#FFF"/></div>
     } else {
       const pageElements: JSX.Element[] = [];
       const currentPage = this.state.pages[this.state.currentPageID];
@@ -79,7 +81,7 @@ export default class Tracks extends React.Component<ITracksProps, ITracksState> 
         <div className="pageButtons">
           {pageElements}
         </div>
-        < div className="trackList">
+        <div className="trackList">
           {this.renderDirs(this.state.allDirUris)}
           {currentPage !== undefined && this.renderTrackInfo(currentPage.tracks)}
         </div>
@@ -177,6 +179,16 @@ export default class Tracks extends React.Component<ITracksProps, ITracksState> 
         pages
       })
     });
+  }
+
+  private hasNewPages() {
+    return this.state.pages.length > this.state.currentPageID;
+  }
+
+  private loadNextPage() {
+    if (this.hasNewPages()) {
+      this.loadPage(this.state.pages[this.state.currentPageID+1])
+    }
   }
 
   private loadPage(page: IPage) {

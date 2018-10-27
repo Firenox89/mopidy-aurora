@@ -20,8 +20,10 @@ interface IBrowseResult {
 
 // @ts-ignore
 const TrackList = ({match}) => {
+  const uriPath: string = decodeURIComponent(match.params.id);
+  const uri = uriPath.replace("/aurora/", "");
   return (
-        <Tracks mopidy={mopidy} uri={decodeURIComponent(match.params.id)}/>
+        <Tracks mopidy={mopidy} uri={uri}/>
   );
 };
 
@@ -64,7 +66,7 @@ export default class App extends React.Component<{}, IAppState> {
     this.state.audioSources.forEach((item: IBrowseResult, index: number) => {
       audioSources.push(
           <div key={item.uri} className="menuEntry">
-            <Link to={"/" + encodeURIComponent(item.uri)}>{item.name}</Link>
+            <Link to={"/aurora/" + encodeURIComponent(item.uri)}>{item.name}</Link>
           </div>
       );
     });
@@ -81,8 +83,8 @@ export default class App extends React.Component<{}, IAppState> {
                   {audioSources}
               </div>
               <div className="contentContainer">
-                <Route exact={true} path="/" component={Aurora}/>
-                <Route path="/:id" component={TrackList}/>
+                <Route exact={true} path="/aurora" component={Aurora}/>
+                <Route path="/aurora/:id" component={TrackList}/>
               </div>
             </div>
             <Footer mopidy={mopidy}/>

@@ -10,7 +10,7 @@ export default class MopidyHelper {
   });
 
   constructor() {
-    this.mopidy.on(console.log.bind(console));
+    // this.mopidy.on(console.log.bind(console));
     this.mopidy.errback((error: any) => {
       console.log(error);
     });
