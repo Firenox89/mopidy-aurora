@@ -53,6 +53,13 @@
     "@types/node" "*"
     "@types/react" "*"
 
+"@types/react-infinite-scroller@^1.0.8":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@types/react-infinite-scroller/-/react-infinite-scroller-1.0.8.tgz#c90c60bf89d8d0cf6d87f843b24cc57bf8d75b6a"
+  integrity sha512-c7kzqWVGjeDkoi8haNbiXHf6GNcQKGkxr3Y89Ucd5YC+tbHt9SLvuizGeXIjmBcSo4cUCCuUEOqEkIPjIwAO2w==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-router-dom@^4.3.1":
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/@types/react-router-dom/-/react-router-dom-4.3.1.tgz#71fe2918f8f60474a891520def40a63997dafe04"

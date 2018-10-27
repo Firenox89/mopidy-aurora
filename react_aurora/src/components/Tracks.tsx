@@ -1,5 +1,5 @@
 import * as React from 'react';
-// import InfiniteScroll from 'react-infinite-scroller';
+import * as InfiniteScroll from 'react-infinite-scroller';
 import ReactLoading from "react-loading";
 import Mopidy from '../mopidy/MopidyHelper';
 import {ITlTrack, ITrack} from "../mopidy/MopidyInterfaces";
@@ -7,7 +7,7 @@ import Utils from "../Utils";
 import TrackListItem from "./TrackListItem";
 import './Tracks.css';
 
-const tracksPerPage = 30;
+const tracksPerPage = 10;
 
 interface ITracksProps {
   mopidy: Mopidy
@@ -17,8 +17,10 @@ interface ITracksProps {
 interface ITracksState {
   allDirUris: IBrowseResult[]
   allTrackUris: string[]
-  currentPageID: number
+  allTracksLoaded: boolean
+  currentPage: number
   isLoading: boolean
+  loadedTracks: ITrack[]
   pages: IPage[]
 }
 
@@ -42,14 +44,15 @@ export default class Tracks extends React.Component<ITracksProps, ITracksState> 
     this.state = {
       allDirUris: [],
       allTrackUris: [],
-      currentPageID: 0,
+      allTracksLoaded: false,
+      currentPage: 0,
       isLoading: false,
+      loadedTracks: [],
       pages: [],
     };
 
     this.renderTrackInfo = this.renderTrackInfo.bind(this);
     this.playTrack = this.playTrack.bind(this);
-    this.hasNewPages = this.hasNewPages.bind(this);
     this.loadNextPage = this.loadNextPage.bind(this);
 
     if (this.props.mopidy.isOnline) {
@@ -62,49 +65,30 @@ export default class Tracks extends React.Component<ITracksProps, ITracksState> 
   }
 
   public render() {
-    let pageContent: JSX.Element = <div/>;
-    if (this.state.isLoading) {
-      pageContent = <div className="loadingContainer"><ReactLoading type="spin" color="#FFF"/></div>
-    } else {
-      const pageElements: JSX.Element[] = [];
-      const currentPage = this.state.pages[this.state.currentPageID];
-      if (currentPage === undefined && this.state.allDirUris.length === 0) { return <div>Page is undefined</div>; }
-      if (currentPage !== undefined && !currentPage.loaded) {
-        this.loadPage(currentPage)
-      }
-      for (let i = 0; i < this.state.pages.length; i++) {
-        pageElements.push(
-            <button className="pageButton" key={i} onClick={() => this.handlePageSwitch(i)}>{i + 1}</button>
-        )
-      }
-      pageContent = <div>
-        <div className="pageButtons">
-          {pageElements}
-        </div>
-        <div className="trackList">
-          {this.renderDirs(this.state.allDirUris)}
-          {currentPage !== undefined && this.renderTrackInfo(currentPage.tracks)}
-        </div>
-        <div className="pageButtons">
-          {pageElements}
-        </div>
+    const pageContent: JSX.Element = <div>
+      <div className="trackList" key="trackList">
+        {this.renderDirs(this.state.allDirUris)}
+        {this.renderTrackInfo(this.state.loadedTracks)}
       </div>
-    }
+    </div>;
     return (
         <div className="tracks">
-          {pageContent}
+          <InfiniteScroll
+              pageStart={-1}
+              initialLoad={true}
+              loadMore={this.loadNextPage}
+              hasMore={!this.state.allTracksLoaded}
+              loader={<div className="loadingContainer" key={0}><ReactLoading type="spin" color="#FFF"/></div>}
+              useWindow={false}
+          >
+            {pageContent}
+          </InfiniteScroll>
         </div>
     );
   }
 
   public componentWillReceiveProps(nextProps: ITracksProps) {
     this.loadAudioSources(nextProps.uri)
-  }
-
-  private handlePageSwitch(pageID: number) {
-    this.setState({
-      currentPageID: pageID
-    })
   }
 
   private renderTrackInfo(tracks: ITrack[]) {
@@ -176,44 +160,53 @@ export default class Tracks extends React.Component<ITracksProps, ITracksState> 
       this.setState({
         allDirUris: dirs,
         allTrackUris: trackUris,
+        allTracksLoaded: false,
+        currentPage: 0,
+        loadedTracks: [],
         pages
       })
     });
   }
 
-  private hasNewPages() {
-    return this.state.pages.length > this.state.currentPageID;
-  }
-
-  private loadNextPage() {
-    if (this.hasNewPages()) {
-      this.loadPage(this.state.pages[this.state.currentPageID+1])
+  private loadNextPage(id: number) {
+    const page = this.state.pages[this.state.currentPage];
+    if (page !== undefined) {
+      if (!this.state.isLoading) {
+        this.setState({isLoading: true});
+        this.loadPage(page)
+      }
+    } else {
+      this.setState({allTracksLoaded: true})
     }
   }
 
   private loadPage(page: IPage) {
-    this.setState({isLoading: true});
+    const nextPage = page.id + 1;
     Promise.all([this.props.mopidy.lookupTracks(page.trackUris),
       this.props.mopidy.getImages(page.trackUris)]
     ).then((result: [ITrack[], any]) => {
       const loadedTracks: ITrack[] = page.trackUris
           .filter((trackUri: string) => result[0][trackUri][0] !== undefined)
           .map((trackUri: string) => {
-        const track: ITrack = result[0][trackUri][0];
-        const cover: string[] = result[1][trackUri].map((image: any) => image.uri);
-        if (track.album.images === undefined) {
-          track.album.images = cover
-        }
-        if (track.album.images.length === 0) {
-          track.album.images.push(...cover)
-        }
-        return track
-      });
+            const track: ITrack = result[0][trackUri][0];
+            const cover: string[] = result[1][trackUri].map((image: any) => image.uri);
+            if (track.album.images === undefined) {
+              track.album.images = cover
+            }
+            if (track.album.images.length === 0) {
+              track.album.images.push(...cover)
+            }
+            return track
+          });
+      const newLoadedTracks: ITrack[] = JSON.parse(JSON.stringify(this.state.loadedTracks));
       const newPages: IPage[] = JSON.parse(JSON.stringify(this.state.pages));
       newPages[page.id].tracks = loadedTracks;
       newPages[page.id].loaded = true;
+      newLoadedTracks.push(...loadedTracks);
       this.setState({
+        currentPage: nextPage,
         isLoading: false,
+        loadedTracks: newLoadedTracks,
         pages: newPages,
       });
     });
@@ -224,11 +217,13 @@ export default class Tracks extends React.Component<ITracksProps, ITracksState> 
     const mopidy = this.props.mopidy;
     mopidy.stop();
     mopidy.clearTracklist();
-    mopidy.addToTracklist(this.state.pages[this.state.currentPageID].tracks);
+    mopidy.addToTracklist(this.state.loadedTracks);
     mopidy.getTlTracks().then((tlTracks: ITlTrack[]) => {
       const foundTlTrack = tlTracks.find((tlTrack: ITlTrack) => tlTrack.track.uri === uri);
       if (foundTlTrack !== undefined) {
         mopidy.playTrack(foundTlTrack.tlid)
+      } else {
+        console.log("TRACK ID NOT FOUND.")
       }
     })
   }
