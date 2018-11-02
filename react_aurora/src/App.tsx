@@ -72,12 +72,12 @@ export default class App extends React.Component<{}, IAppState> {
     });
     audioSources.push(
         <div key="aurora" className="menuEntry">
-          <Link to={"/"}>Aurora</Link>
+          <Link to={"/aurora"}>Aurora</Link>
         </div>
     );
     return (
         <Router>
-          <div className="App">
+          <div className="App" tabIndex={0} onKeyPress={this.handleKeyPress}>
             <div className="mainContent">
               <div className="sidemenu">
                   {audioSources}
@@ -91,5 +91,11 @@ export default class App extends React.Component<{}, IAppState> {
           </div>
         </Router>
     );
+  }
+
+  private handleKeyPress(e: any) {
+    if (e.key === " ") {
+      mopidy.togglePlay()
+    }
   }
 }

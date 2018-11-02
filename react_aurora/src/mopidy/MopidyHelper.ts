@@ -125,4 +125,14 @@ export default class MopidyHelper {
   public getImages(trackUris: string[]) {
     return this.mopidy.library.getImages({"uris": trackUris})
   }
+
+  public togglePlay() {
+    this.mopidy.playback.getState().then((state: string) => {
+      if (state === "playing") {
+        this.pause()
+      } else {
+        this.play()
+      }
+    })
+  }
 }
