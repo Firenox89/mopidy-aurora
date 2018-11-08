@@ -6,7 +6,7 @@ export default class MopidyHelper {
   public isOnline = false;
   private mopidy = Mopidy({
     callingConvention: 'by-position-or-by-name',
-    webSocketUrl: 'ws://localhost/mopidy/ws/',
+    webSocketUrl: 'ws://' + window.location.host + '/mopidy/ws/',
   });
 
   constructor() {
