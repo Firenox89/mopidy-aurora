@@ -42,7 +42,7 @@ export default class TrackListItem extends React.Component<ITrackListItemProps, 
                 </div>
               </div>
               :
-              <Link className="directory" to={"/aurora/" + encodeURIComponent(this.props.uri)}>{this.props.title}</Link>
+              <Link className="directory" to={"/aurora/browse/" + encodeURIComponent(this.props.uri)}>{this.props.title}</Link>
           }
         </div>
     );

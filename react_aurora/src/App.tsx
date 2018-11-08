@@ -3,6 +3,7 @@ import {BrowserRouter as Router, Link, Route} from "react-router-dom";
 import './App.css';
 import AuroraControls from './components/aurora/AuroraControls';
 import Footer from './components/footer/Footer';
+import SearchResults from './components/SearchResults';
 import Tracks from './components/Tracks';
 import Mopidy from './mopidy/MopidyHelper';
 
@@ -21,9 +22,19 @@ interface IBrowseResult {
 // @ts-ignore
 const TrackList = ({match}) => {
   const uriPath: string = decodeURIComponent(match.params.id);
-  const uri = uriPath.replace("/aurora/", "");
+  const uri = uriPath.replace("/aurora/browse/", "");
   return (
-        <Tracks mopidy={mopidy} uri={uri}/>
+      <Tracks mopidy={mopidy} uri={uri}/>
+  );
+};
+
+// @ts-ignore
+const SearchView = ({match}) => {
+  const uriPath: string = decodeURIComponent(match.params.id);
+  const uri = uriPath.replace("/aurora/search/", "");
+  console.log(uri)
+  return (
+      <SearchResults mopidy={mopidy} uri={uri}/>
   );
 };
 
@@ -66,7 +77,7 @@ export default class App extends React.Component<{}, IAppState> {
     this.state.audioSources.forEach((item: IBrowseResult, index: number) => {
       audioSources.push(
           <div key={item.uri} className="menuEntry">
-            <Link to={"/aurora/" + encodeURIComponent(item.uri)}>{item.name}</Link>
+            <Link to={"/aurora/browse/" + encodeURIComponent(item.uri)}>{item.name}</Link>
           </div>
       );
     });
@@ -80,11 +91,13 @@ export default class App extends React.Component<{}, IAppState> {
           <div className="App" tabIndex={0} onKeyPress={this.handleKeyPress}>
             <div className="mainContent">
               <div className="sidemenu">
-                  {audioSources}
+                <input type="search" placeholder="Search..."/>
+                {audioSources}
               </div>
               <div className="contentContainer">
                 <Route exact={true} path="/aurora" component={Aurora}/>
-                <Route path="/aurora/:id" component={TrackList}/>
+                <Route path="/aurora/search/:id" component={SearchView}/>
+                <Route path="/aurora/browse/:id" component={TrackList}/>
               </div>
             </div>
             <Footer mopidy={mopidy}/>

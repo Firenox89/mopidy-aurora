@@ -84,6 +84,17 @@ class AuroraEffectListHandler(tornado.web.RequestHandler):
 def app_factory(config, core):
     database = "wtf"
     auroraPath = os.path.join(os.path.dirname(__file__), 'static')
+    indexPath = os.path.join(os.path.dirname(__file__), 'static/index.html')
+    with open(indexPath, 'r') as myfile:
+        indexData=myfile.read().replace('\n', '')
+
+    def wsgi_app(environ, start_response):
+        status = '200 OK'
+        response_headers = [('Content-type', 'text/html')]
+        start_response(status, response_headers)
+        return [
+            indexData
+        ]
     return [
         (r'/aurora/reboot', RebootHandler),
         (r'/aurora/power', TPOnOffHandler),
@@ -94,6 +105,8 @@ def app_factory(config, core):
         (r'/aurora/saturation', AuroraSaturationHandler),
         (r'/aurora/hue', AuroraHueHandler),
         (r'/aurora/temperature', AuroraTemperatureHandler),
+        (r'/browse/(.*)', tornado.web.FallbackHandler, { 'fallback': tornado.wsgi.WSGIContainer(wsgi_app), }),
+        (r'/search/(.*)', tornado.web.FallbackHandler, { 'fallback': tornado.wsgi.WSGIContainer(wsgi_app), }),
         (r'/(.*)', tornado.web.StaticFileHandler, {'path': auroraPath, "default_filename": "index.html"}),
     ]
 
