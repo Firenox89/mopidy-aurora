@@ -81,7 +81,7 @@ class TPLinkSmartPlug(object):
             # print "Received: ", response
             return response
         except socket.error:
-            quit("Cound not connect to host " + ip + ":" + str(port))
+            quit("Cound not connect to host " + self.ip + ":" + str(self.port))
 
     @property
     def info(self):

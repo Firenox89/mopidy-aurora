@@ -24,14 +24,12 @@ class Extension(ext.Extension):
 
     def get_config_schema(self):
         schema = super(Extension, self).get_config_schema()
-        # TODO: Comment in and edit, or remove entirely
-        #schema['username'] = config.String()
-        #schema['password'] = config.Secret()
+        schema['auroraip'] = config.String()
+        schema['tpip'] = config.String()
+
         return schema
 
     def setup(self, registry):
-        print("alsalsla")
-        logger.error("TWSTE")
         from .backend import app_factory, setlogger
         setlogger(logger)
         registry.add('http:app', {

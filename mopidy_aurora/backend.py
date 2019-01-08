@@ -8,12 +8,31 @@ from mopidy import ext
 from .nanoleaf import Aurora
 from .tplink_smartplug import TPLinkSmartPlug
 
-aurora = Aurora("192.168.2.101", "1tHOYr0jYUm2dIlELluQXGAJV97Svqcw")
-tplink = TPLinkSmartPlug('192.168.2.100')
+aurora = None
+tp = None
+
+gauroraip = ""
+gtpip = ""
 glogger = ""
+
 def setlogger(logger):
     global glogger
     glogger = logger
+
+def getaurorainstance():
+    global aurora
+    global tp
+    if not aurora:
+        aurora = Aurora(gauroraip, "1tHOYr0jYUm2dIlELluQXGAJV97Svqcw")
+    
+    return aurora
+
+def gettpinstance():
+    global tp
+    if not tp:
+        tp = TPLinkSmartPlug(gtpip)
+
+    return tp
 
 class RebootHandler(tornado.web.RequestHandler):
     def put(self):
@@ -24,65 +43,71 @@ class RebootHandler(tornado.web.RequestHandler):
 
 class TPOnOffHandler(tornado.web.RequestHandler):
     def get(self):
-        data = tornado.escape.json_encode(tplink.power)
+        data = tornado.escape.json_encode(gettpinstance().power)
         self.write(data)
 
     def put(self):
         data = tornado.escape.json_decode(self.request.body)
-        tplink.power = data["on"]
+        gettpinstance().power = data["on"]
 
 class AuroraOnOffHandler(tornado.web.RequestHandler):
     def get(self):
-        data = tornado.escape.json_encode(aurora.on)
+        data = tornado.escape.json_encode(getaurorainstance().on)
         self.write(data)
 
     def put(self):
         data = tornado.escape.json_decode(self.request.body)
-        aurora.on = data["on"]
+        getaurorainstance().on = data["on"]
 
 class AuroraEffectHandler(tornado.web.RequestHandler):
     def get(self):
-        self.write(aurora.effect)
+        self.write(getaurorainstance().effect)
 
     def put(self):
-        aurora.effect = self.request.body
+        getaurorainstance().effect = self.request.body
 
 class AuroraBrightnessHandler(tornado.web.RequestHandler):
     def get(self):
-        self.write(str(aurora.brightness))
+        self.write(str(getaurorainstance().brightness))
 
     def put(self):
-        aurora.brightness = int(self.request.body)
+        getaurorainstance().brightness = int(self.request.body)
 
 class AuroraSaturationHandler(tornado.web.RequestHandler):
     def get(self):
-        self.write(str(aurora.saturation))
+        self.write(str(getaurorainstance().saturation))
 
     def put(self):
-        aurora.saturation = int(self.request.body)
+        getaurorainstance().saturation = int(self.request.body)
 
 class AuroraHueHandler(tornado.web.RequestHandler):
     def get(self):
-        self.write(str(aurora.hue))
+        self.write(str(getaurorainstance().hue))
 
     def put(self):
-        aurora.hue = int(self.request.body)
+        getaurorainstance().hue = int(self.request.body)
 
 class AuroraTemperatureHandler(tornado.web.RequestHandler):
     def get(self):
-        self.write(str(aurora.color_temperature))
+        self.write(str(getaurorainstance().color_temperature))
 
     def put(self):
-        aurora.color_temperature = int(self.request.body)
+        getaurorainstance().color_temperature = int(self.request.body)
 
 class AuroraEffectListHandler(tornado.web.RequestHandler):
     def get(self):
-        data = tornado.escape.json_encode(aurora.effects_list)
+        data = tornado.escape.json_encode(getaurorainstance().effects_list)
         self.write(data)
 
 
 def app_factory(config, core):
-    database = "wtf"
+    global gauroraip
+    global gtpip
+    gauroraip = config["aurora"]["auroraip"]
+    gtpip = config["aurora"]["tpip"]
+
+    glogger.error(str(gauroraip))
+
     auroraPath = os.path.join(os.path.dirname(__file__), 'static')
     indexPath = os.path.join(os.path.dirname(__file__), 'static/index.html')
     with open(indexPath, 'r') as myfile:
